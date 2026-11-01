@@ -68,9 +68,10 @@ Arriba de la lista tienes:
 
 ## ⚙️ 6. Personalizar tu Salón y Activar el Turnero Online (Opcional)
 
-1. Toca el ícono de **engranaje (`⚙️`)** arriba a la derecha (o el cartel **`📅 Turnero OFF / ON`** al lado del nombre de tu salón).
-2. Puedes cambiar el **Nombre del Salón / Profesional** y la **Plantilla de WhatsApp**.
-3. **📅 Switch "Turnero Online (Opcional)":**
+1. Toca el ícono de **engranaje (`⚙️`)** arriba a la derecha (o el círculo con el logo / foto).
+2. **📷 Logo o Foto del Salón:** Toca **`📷 Subir Logo`** para elegir una foto desde tu celular o computadora. Se ajustará automáticamente y se mostrará en el encabezado de tu app y en el turnero online. Si quieres volver al ícono por defecto, toca **`Quitar logo`**.
+3. Puedes cambiar el **Nombre del Salón / Profesional** y la **Plantilla de WhatsApp**.
+4. **📅 Switch "Turnero Online (Opcional)":**
    - **Si lo dejas APAGADO (`OFF`):** Cuando toques "Enviar WhatsApp", solo se enviará el mensaje avisándole a la clienta que ya le toca volver.
    - **Si lo PRENDES (`ON`):** Se despliega tu configuración rápida:
      - Pones **tu número de WhatsApp** (donde quieres recibir las reservas).

@@ -89,7 +89,7 @@
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 p-0.5 shadow-md flex-shrink-0 cursor-pointer" onclick="openProfileModal()">
-              <div class="w-full h-full bg-[#FAF7F2] rounded-full flex items-center justify-center overflow-hidden">
+              <div id="headerLogoContainer" class="w-full h-full bg-[#FAF7F2] rounded-full flex items-center justify-center overflow-hidden">
                 <span class="text-2xl" id="profileAvatar">💇‍♀️</span>
               </div>
             </div>
@@ -210,7 +210,7 @@
       <div class="pt-6 px-5 pb-4 bg-white border-b border-[#EAE3DA] shadow-sm">
         <div class="flex items-center gap-3">
           <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 p-0.5 shadow-md flex-shrink-0">
-            <div class="w-full h-full bg-[#FAF7F2] rounded-full flex items-center justify-center">
+            <div id="bookingLogoContainer" class="w-full h-full bg-[#FAF7F2] rounded-full flex items-center justify-center overflow-hidden">
               <span class="text-2xl">💇‍♀️</span>
             </div>
           </div>
@@ -482,6 +482,32 @@
       </div>
 
       <div class="space-y-4">
+        <!-- Logo / Foto del Salón -->
+        <div class="bg-purple-50/60 p-3.5 rounded-2xl border border-purple-200/80 flex items-center gap-3.5">
+          <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 p-0.5 shadow-md flex-shrink-0">
+            <div id="modalLogoPreview" class="w-full h-full bg-white rounded-full flex items-center justify-center overflow-hidden">
+              <span class="text-2xl">💇‍♀️</span>
+            </div>
+          </div>
+          <div class="flex-1">
+            <label class="block text-xs font-bold text-gray-800 uppercase tracking-wider mb-1">Logo o Foto del Salón</label>
+            <div class="flex flex-wrap items-center gap-2">
+              <label class="cursor-pointer bg-white hover:bg-purple-50 text-purple-700 border border-purple-300 px-3 py-1.5 rounded-xl font-bold text-xs shadow-sm transition-all flex items-center gap-1 active:scale-95">
+                <span>📷 Subir Logo</span>
+                <input type="file" id="logoFileInput" accept="image/*" class="hidden" onchange="handleLogoUpload(event)">
+              </label>
+              <button 
+                type="button" 
+                id="btnRemoveLogo" 
+                onclick="removeSalonLogo()" 
+                class="text-xs text-rose-600 hover:text-rose-800 font-semibold px-2 py-1 rounded-lg hover:bg-rose-50 transition-colors hidden"
+              >
+                Quitar logo
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div>
           <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Nombre del Salón / Profesional</label>
           <input 
@@ -779,6 +805,7 @@
 
     const DEFAULT_SETTINGS = {
       salonName: 'Color · Laura',
+      salonLogo: '',
       template: '¡Hola {nombre}! Ya pasaron {semanas} semanas de tu {servicio}, ¿te reservo turno para el retoque?',
       driveWebhookUrl: AUTO_DRIVE_WEBHOOK,
       driveFolderName: AUTO_DRIVE_FOLDER,
@@ -1344,6 +1371,72 @@
       renderWorkDaysButtons();
     }
 
+    function updateSalonLogos() {
+      const headerContainer = document.getElementById('headerLogoContainer');
+      const bookingContainer = document.getElementById('bookingLogoContainer');
+      const modalPreview = document.getElementById('modalLogoPreview');
+      const removeBtn = document.getElementById('btnRemoveLogo');
+
+      const contentHtml = settings.salonLogo 
+        ? `<img src="${settings.salonLogo}" alt="Logo" class="w-full h-full object-cover">` 
+        : `<span class="text-2xl">💇‍♀️</span>`;
+
+      if (headerContainer) headerContainer.innerHTML = contentHtml;
+      if (bookingContainer) bookingContainer.innerHTML = contentHtml;
+      if (modalPreview) modalPreview.innerHTML = contentHtml;
+
+      if (removeBtn) {
+        if (settings.salonLogo) {
+          removeBtn.classList.remove('hidden');
+        } else {
+          removeBtn.classList.add('hidden');
+        }
+      }
+    }
+
+    function handleLogoUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const maxDim = 280;
+          let width = img.width;
+          let height = img.height;
+          if (width > height) {
+            if (width > maxDim) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            }
+          } else {
+            if (height > maxDim) {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+          settings.salonLogo = dataUrl;
+          updateSalonLogos();
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+      event.target.value = '';
+    }
+
+    function removeSalonLogo() {
+      settings.salonLogo = '';
+      updateSalonLogos();
+    }
+
     function openProfileModal() {
       document.getElementById('salonNameInput').value = settings.salonName;
       document.getElementById('messageTemplateInput').value = settings.template;
@@ -1355,6 +1448,7 @@
       tempWorkDays = Array.isArray(settings.workDays) && settings.workDays.length ? [...settings.workDays] : [2, 3, 4, 5, 6];
       renderWorkDaysButtons();
       toggleBookingConfigPanel(Boolean(settings.bookingEnabled));
+      updateSalonLogos();
       document.getElementById('profileModal').classList.remove('hidden');
     }
 
@@ -1381,6 +1475,7 @@
 
       document.getElementById('headerTitle').textContent = settings.salonName;
       updateTurneroHeaderBadge();
+      updateSalonLogos();
       persistData();
       closeProfileModal();
     }
@@ -1397,6 +1492,7 @@
         persistData();
         document.getElementById('headerTitle').textContent = settings.salonName;
         updateTurneroHeaderBadge();
+        updateSalonLogos();
         closeProfileModal();
         renderClients();
       }
@@ -1778,8 +1874,10 @@
             clients = importedClients;
             if (data.settings && data.settings.salonName) {
               settings.salonName = data.settings.salonName;
+              settings.salonLogo = data.settings.salonLogo || '';
               settings.template = cleanWhatsAppText(data.settings.template || settings.template);
               document.getElementById('headerTitle').textContent = settings.salonName;
+              updateSalonLogos();
             }
             settings.lastBackupDate = new Date().toISOString();
             persistData(true);
@@ -1867,6 +1965,7 @@
 
       document.getElementById('headerTitle').textContent = settings.salonName;
       updateTurneroHeaderBadge();
+      updateSalonLogos();
       updateArgClock();
       setInterval(updateArgClock, 30000);
       updateBackupBadge();
