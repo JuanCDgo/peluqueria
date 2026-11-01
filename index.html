@@ -14,7 +14,200 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com">
+    // ==========================================
+    // QR DE COBRO & TURNERO DEL NEGOCIO
+    // ==========================================
+    let currentCobroClientId = null;
+    let cobroQrInstance = null;
+    let turneroQrInstance = null;
+
+    function openBusinessQrModal(clientId = null) {
+      currentCobroClientId = clientId;
+      const alias = settings.paymentAlias || 'peluqueria.laura.mp';
+      const holder = settings.paymentHolder || 'Laura Gómez';
+
+      document.getElementById('cobroDisplayAlias').textContent = alias;
+      document.getElementById('cobroDisplayHolder').textContent = holder;
+      document.getElementById('turneroQrSalonName').textContent = settings.salonName || 'Color · Laura';
+
+      const bookingUrl = `${window.location.origin}${window.location.pathname}?booking=true`;
+      document.getElementById('turneroUrlText').textContent = bookingUrl;
+
+      const btnCobrado = document.getElementById('btnMarcarCobrado');
+      const labelClient = document.getElementById('cobroClientLabel');
+      const amountInput = document.getElementById('cobroAmountInput');
+
+      if (clientId) {
+        const c = clients.find(item => item.id === clientId);
+        if (c) {
+          labelClient.textContent = `Saldo pendiente de ${c.name}:`;
+          amountInput.value = c.debt || 0;
+          btnCobrado.classList.remove('hidden');
+        }
+      } else {
+        labelClient.textContent = 'Monto a Cobrar:';
+        amountInput.value = '';
+        btnCobrado.classList.add('hidden');
+      }
+
+      switchQrModalTab('cobro');
+      updateCobroQrLive();
+      generateTurneroQr(bookingUrl);
+
+      document.getElementById('businessQrModal').classList.remove('hidden');
+    }
+
+    function openCobroModalForClient(clientId) {
+      openBusinessQrModal(clientId);
+    }
+
+    function closeBusinessQrModal() {
+      document.getElementById('businessQrModal').classList.add('hidden');
+      currentCobroClientId = null;
+    }
+
+    function switchQrModalTab(tab) {
+      const btnCobro = document.getElementById('qrTabBtn-cobro');
+      const btnTurnero = document.getElementById('qrTabBtn-turnero');
+      const contentCobro = document.getElementById('qrContent-cobro');
+      const contentTurnero = document.getElementById('qrContent-turnero');
+
+      if (tab === 'cobro') {
+        btnCobro.className = 'pb-2 text-xs font-black border-b-2 border-purple-600 text-purple-700';
+        btnTurnero.className = 'pb-2 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-800';
+        contentCobro.classList.remove('hidden');
+        contentTurnero.classList.add('hidden');
+      } else {
+        btnTurnero.className = 'pb-2 text-xs font-black border-b-2 border-purple-600 text-purple-700';
+        btnCobro.className = 'pb-2 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-800';
+        contentTurnero.classList.remove('hidden');
+        contentCobro.classList.add('hidden');
+      }
+    }
+
+    function updateCobroQrLive() {
+      const alias = settings.paymentAlias || 'peluqueria.laura.mp';
+      const amount = parseFloat(document.getElementById('cobroAmountInput').value) || 0;
+      
+      // Enlace universal de transferencia o formato alias
+      // En Argentina, los bancos aceptan transferencias directas al alias. Codificamos el intent o link.
+      const qrData = amount > 0 
+        ? `https://mpago.la/transfer?alias=${encodeURIComponent(alias)}&amount=${amount}`
+        : `https://mpago.la/transfer?alias=${encodeURIComponent(alias)}`;
+
+      const container = document.getElementById('cobroQrCodeContainer');
+      container.innerHTML = '';
+
+      try {
+        if (typeof QRCode !== 'undefined') {
+          cobroQrInstance = new QRCode(container, {
+            text: qrData,
+            width: 190,
+            height: 190,
+            colorDark: '#1E1B4B',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
+          });
+        } else {
+          container.innerHTML = `<img src="https://quickchart.io/qr?text=${encodeURIComponent(qrData)}&size=190" alt="QR Cobro" class="w-44 h-44 rounded-xl">`;
+        }
+      } catch (err) {
+        container.innerHTML = `<img src="https://quickchart.io/qr?text=${encodeURIComponent(qrData)}&size=190" alt="QR Cobro" class="w-44 h-44 rounded-xl">`;
+      }
+    }
+
+    function generateTurneroQr(url) {
+      const container = document.getElementById('turneroQrCodeContainer');
+      container.innerHTML = '';
+      try {
+        if (typeof QRCode !== 'undefined') {
+          turneroQrInstance = new QRCode(container, {
+            text: url,
+            width: 190,
+            height: 190,
+            colorDark: '#1E1B4B',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
+          });
+        } else {
+          container.innerHTML = `<img src="https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=190" alt="QR Turnero" class="w-44 h-44 rounded-xl">`;
+        }
+      } catch (err) {
+        container.innerHTML = `<img src="https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=190" alt="QR Turnero" class="w-44 h-44 rounded-xl">`;
+      }
+    }
+
+    function copyCobroAlias() {
+      const alias = settings.paymentAlias || 'peluqueria.laura.mp';
+      navigator.clipboard.writeText(alias).then(() => {
+        showToast('¡Alias copiado para transferir!', '📋');
+      }).catch(() => {
+        alert(`Alias: ${alias}`);
+      });
+    }
+
+    function sendPaymentWhatsApp() {
+      const alias = settings.paymentAlias || 'peluqueria.laura.mp';
+      const holder = settings.paymentHolder || 'Laura Gómez';
+      const amount = parseFloat(document.getElementById('cobroAmountInput').value) || 0;
+      const salon = settings.salonName || 'Peluquería & Color';
+
+      let msg = `¡Hola! Te comparto los datos para abonar en *${salon}*:\n\n` +
+                `• *Alias:* \`${alias}\`\n` +
+                `• *Titular:* ${holder}\n`;
+
+      if (amount > 0) {
+        msg += `• *Monto:* $ ${amount.toLocaleString('es-AR')}\n\n`;
+      } else {
+        msg += `\n`;
+      }
+      msg += `Por favor envianos el comprobante por acá una vez realizada la transferencia. ¡Muchas gracias!`;
+
+      if (currentCobroClientId) {
+        const c = clients.find(item => item.id === currentCobroClientId);
+        if (c && c.phone) {
+          const cleanPhone = c.phone.replace(/[^0-9]/g, '');
+          const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
+          window.open(waUrl, '_blank');
+          return;
+        }
+      }
+
+      navigator.clipboard.writeText(msg).then(() => {
+        showToast('¡Datos de pago copiados para pegar en WhatsApp!', '💬');
+      }).catch(() => {
+        alert(msg);
+      });
+    }
+
+    function markCurrentClientAsPaid() {
+      if (!currentCobroClientId) return;
+      const c = clients.find(item => item.id === currentCobroClientId);
+      if (!c) return;
+
+      c.debt = 0;
+      persistData();
+      renderClients();
+      closeBusinessQrModal();
+      showToast(`¡Saldo de ${c.name} saldado en $0!`, '✓');
+    }
+
+    function copyTurneroLink() {
+      const url = document.getElementById('turneroUrlText').textContent;
+      navigator.clipboard.writeText(url).then(() => {
+        showToast('¡Link del turnero copiado!', '📅');
+      }).catch(() => {
+        alert(url);
+      });
+    }
+
+    function openTurneroInNewTab() {
+      const url = document.getElementById('turneroUrlText').textContent;
+      window.open(url, '_blank');
+    }
+
+  </script>
   <script>
     tailwind.config = {
       theme: {
@@ -74,6 +267,15 @@
       -webkit-backdrop-filter: blur(4px);
     }
   </style>
+  <!-- QRCode Library (local with CDN fallback) -->
+  <script src="qrcode.min.js"></script>
+  <script>
+    if (typeof QRCode === 'undefined') {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+      document.head.appendChild(s);
+    }
+  </script>
 </head>
 <body class="min-h-screen flex justify-center items-start sm:py-6">
 
@@ -113,6 +315,11 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
               </svg>
               <span id="backupStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white absolute -top-0.5 -right-0.5 hidden"></span>
+            </button>
+
+            <!-- QR Cobro & Negocio Button -->
+            <button onclick="openBusinessQrModal()" class="w-10 h-10 rounded-full bg-white border border-purple-200 flex items-center justify-center text-purple-700 hover:bg-purple-50 active:scale-95 transition-transform shadow-sm" title="Cobrar con QR / Datos de pago">
+              <span class="text-base font-black">📷</span>
             </button>
 
             <!-- Config Button -->
@@ -528,6 +735,37 @@
           ></textarea>
         </div>
 
+        <!-- Datos de Cobro con QR / Transferencia -->
+        <div class="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4 space-y-2.5">
+          <div class="flex items-center gap-2">
+            <span class="text-base">💳</span>
+            <div>
+              <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-950 block">Datos de Cobro (Alias / Transferencia)</span>
+              <span class="text-[11px] text-emerald-700/90 font-medium">Para que el QR de cobro transfiera directo a tu cuenta</span>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+            <div>
+              <label class="block text-[10px] font-bold text-gray-700 uppercase mb-1">Tu Alias o CVU de Mercado Pago / Banco</label>
+              <input 
+                type="text" 
+                id="paymentAliasInput" 
+                placeholder="ej: peluqueria.laura.mp" 
+                class="w-full px-3 py-2 rounded-xl border border-emerald-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-xs font-bold text-gray-800 bg-white"
+              >
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-gray-700 uppercase mb-1">Nombre del Titular de la cuenta</label>
+              <input 
+                type="text" 
+                id="paymentHolderInput" 
+                placeholder="ej: Laura Gómez" 
+                class="w-full px-3 py-2 rounded-xl border border-emerald-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-xs font-bold text-gray-800 bg-white"
+              >
+            </div>
+          </div>
+        </div>
+
         <!-- SECCIÓN SWITCH TURNERO ONLINE (OPCIONAL) -->
         <div class="bg-purple-50/70 border border-purple-200 rounded-2xl p-4 space-y-3">
           <div class="flex items-center justify-between">
@@ -805,6 +1043,8 @@
 
     const DEFAULT_SETTINGS = {
       salonName: 'Color · Laura',
+      paymentAlias: 'peluqueria.laura.mp',
+      paymentHolder: 'Laura Gómez',
       salonLogo: '',
       template: '¡Hola {nombre}! Ya pasaron {semanas} semanas de tu {servicio}, ¿te reservo turno para el retoque?',
       driveWebhookUrl: AUTO_DRIVE_WEBHOOK,
@@ -1061,9 +1301,10 @@
               <!-- Payment status badge -->
               <div class="text-right flex-shrink-0">
                 ${hasDebt ? `
-                  <span class="inline-block px-2.5 py-1 rounded-full text-xs font-black bg-rose-50 text-rose-700 border border-rose-200/80">
-                    ${formatCurrency(c.debt)}
-                  </span>
+                  <button onclick="event.stopPropagation(); openCobroModalForClient('${c.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 active:scale-95 transition-all" title="Cobrar saldo con QR">
+                    <span>${formatCurrency(c.debt)}</span>
+                    <span class="text-[10px]">📷</span>
+                  </button>
                 ` : `
                   <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80">
                     al día ✓
@@ -1439,6 +1680,8 @@
 
     function openProfileModal() {
       document.getElementById('salonNameInput').value = settings.salonName;
+      document.getElementById('paymentAliasInput').value = settings.paymentAlias || '';
+      document.getElementById('paymentHolderInput').value = settings.paymentHolder || '';
       document.getElementById('messageTemplateInput').value = settings.template;
       document.getElementById('bookingEnabledToggle').checked = Boolean(settings.bookingEnabled);
       document.getElementById('salonPhoneInput').value = settings.salonPhone || '';
@@ -1465,6 +1708,8 @@
       }
 
       settings.salonName = document.getElementById('salonNameInput').value.trim() || 'Color · Laura';
+      settings.paymentAlias = (document.getElementById('paymentAliasInput').value || '').trim();
+      settings.paymentHolder = (document.getElementById('paymentHolderInput').value || '').trim();
       settings.template = document.getElementById('messageTemplateInput').value.trim() || DEFAULT_SETTINGS.template;
       settings.bookingEnabled = enabled;
       settings.salonPhone = phone;
@@ -2001,5 +2246,150 @@
       }
     });
   </script>
+
+  <!-- ========================================== -->
+  <!-- MODAL: COBRO CON QR & DATOS DE PAGO        -->
+  <!-- ========================================== -->
+  <div id="businessQrModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 modal-backdrop hidden transition-opacity">
+    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[92vh] overflow-y-auto no-scrollbar p-6 shadow-2xl flex flex-col space-y-4">
+      
+      <!-- Encabezado con pestañas -->
+      <div class="flex items-center justify-between pb-2 border-b border-gray-100">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">📱</span>
+          <div>
+            <h2 class="text-base font-extrabold text-gray-900" id="businessQrModalTitle">Cobrar con QR</h2>
+            <p class="text-[11px] text-gray-500 font-medium">Mercado Pago y Transferencias</p>
+          </div>
+        </div>
+        <button onclick="closeBusinessQrModal()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 font-bold flex items-center justify-center transition-all">
+          ✕
+        </button>
+      </div>
+
+      <!-- Pestañas: Cobro vs Turnero -->
+      <div class="flex border-b border-gray-200 gap-2">
+        <button type="button" onclick="switchQrModalTab('cobro')" id="qrTabBtn-cobro" class="pb-2 text-xs font-black border-b-2 border-purple-600 text-purple-700">
+          💳 Cobro por Transferencia
+        </button>
+        <button type="button" onclick="switchQrModalTab('turnero')" id="qrTabBtn-turnero" class="pb-2 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-800">
+          📅 QR de tu Turnero
+        </button>
+      </div>
+
+      <!-- Solapa 1: Cobro con QR y Alias -->
+      <div id="qrContent-cobro" class="space-y-3">
+        <!-- Monto a Cobrar -->
+        <div class="bg-emerald-50/80 p-3.5 rounded-2xl border border-emerald-200 text-center">
+          <span class="text-[10px] uppercase font-bold text-emerald-800 block mb-0.5" id="cobroClientLabel">Monto a Cobrar</span>
+          <div class="relative inline-block w-48">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-lg font-black text-emerald-700">$</span>
+            <input 
+              type="number" 
+              step="any" 
+              id="cobroAmountInput" 
+              value="0" 
+              oninput="updateCobroQrLive()"
+              placeholder="0"
+              class="w-full pl-8 pr-2 py-1.5 rounded-xl border border-emerald-300 font-black text-xl text-center text-emerald-950 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            >
+          </div>
+          <p class="text-[11px] text-emerald-700 font-medium mt-1">Podés escribir el monto que quieras o dejarlo en $0</p>
+        </div>
+
+        <!-- Código QR de Cobro -->
+        <div class="flex flex-col items-center justify-center py-1">
+          <div class="bg-white p-3.5 rounded-3xl shadow-md border-2 border-gray-100 inline-block">
+            <div id="cobroQrCodeContainer" class="w-[190px] h-[190px] flex items-center justify-center"></div>
+          </div>
+          <p class="text-[11px] text-gray-500 font-medium mt-2 max-w-[260px] text-center">
+            Tu clienta abre Mercado Pago, Cuenta DNI o su banco, escanea la pantalla y transfiere.
+          </p>
+        </div>
+
+        <!-- Tarjeta de Datos de Transferencia con botón de copia -->
+        <div class="bg-gray-50 p-3 rounded-2xl border border-gray-200 space-y-2">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-[10px] uppercase font-bold text-gray-400 block">Alias de cobro</span>
+              <span class="text-sm font-black text-purple-900 select-all" id="cobroDisplayAlias">peluqueria.laura.mp</span>
+            </div>
+            <button 
+              onclick="copyCobroAlias()" 
+              class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl shadow-sm active:scale-95 transition-all flex items-center gap-1"
+            >
+              <span>📋 Copiar</span>
+            </button>
+          </div>
+          <div class="text-[11px] text-gray-500 pt-1 border-t border-gray-200 flex items-center justify-between">
+            <span>Titular: <strong id="cobroDisplayHolder" class="text-gray-800">Laura Gómez</strong></span>
+            <span class="text-[10px] text-gray-400">CVU / Transferencias</span>
+          </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="space-y-2 pt-1">
+          <button 
+            type="button" 
+            onclick="sendPaymentWhatsApp()" 
+            class="w-full py-2.5 bg-[#25D366] hover:bg-[#20BA5A] text-white font-bold text-xs rounded-xl shadow-sm active:scale-95 transition-all flex items-center justify-center gap-1.5"
+          >
+            <span>💬 Mandar datos de pago por WhatsApp</span>
+          </button>
+
+          <button 
+            type="button" 
+            id="btnMarcarCobrado"
+            onclick="markCurrentClientAsPaid()" 
+            class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm active:scale-95 transition-all flex items-center justify-center gap-1.5 hidden"
+          >
+            <span>✓ Ya me transfirió (Marcar saldo en $0)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Solapa 2: QR del Turnero / Salón -->
+      <div id="qrContent-turnero" class="space-y-3 hidden">
+        <div class="flex flex-col items-center justify-center py-2">
+          <div class="bg-white p-3.5 rounded-3xl shadow-md border-2 border-gray-100 inline-block">
+            <div id="turneroQrCodeContainer" class="w-[190px] h-[190px] flex items-center justify-center"></div>
+          </div>
+          <p class="text-xs text-gray-600 font-bold mt-2.5 text-center" id="turneroQrSalonName">
+            Color · Laura
+          </p>
+          <p class="text-[11px] text-gray-400 font-medium max-w-[260px] text-center">
+            Mostrá este QR en tu espejo o mostrador para que tus clientas reserven su turno solas.
+          </p>
+        </div>
+
+        <div class="bg-gray-50 p-2.5 rounded-2xl border border-gray-200 flex items-center justify-between gap-2 text-left">
+          <span id="turneroUrlText" class="text-[11px] font-mono text-gray-500 truncate flex-1">https://...</span>
+          <button 
+            onclick="copyTurneroLink()" 
+            class="px-2.5 py-1 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl shrink-0 active:scale-95 transition-all"
+          >
+            Copiar
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button 
+            onclick="closeBusinessQrModal()" 
+            class="py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl active:scale-95 transition-all"
+          >
+            Cerrar
+          </button>
+          <button 
+            onclick="openTurneroInNewTab()" 
+            class="py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl shadow-md active:scale-95 transition-all"
+          >
+            Abrir Turnero ↗
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
 </body>
 </html>
