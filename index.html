@@ -14,200 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com">
-    // ==========================================
-    // QR DE COBRO & TURNERO DEL NEGOCIO
-    // ==========================================
-    let currentCobroClientId = null;
-    let cobroQrInstance = null;
-    let turneroQrInstance = null;
-
-    function openBusinessQrModal(clientId = null) {
-      currentCobroClientId = clientId;
-      const alias = settings.paymentAlias || 'peluqueria.laura.mp';
-      const holder = settings.paymentHolder || 'Laura Gómez';
-
-      document.getElementById('cobroDisplayAlias').textContent = alias;
-      document.getElementById('cobroDisplayHolder').textContent = holder;
-      document.getElementById('turneroQrSalonName').textContent = settings.salonName || 'Color · Laura';
-
-      const bookingUrl = `${window.location.origin}${window.location.pathname}?booking=true`;
-      document.getElementById('turneroUrlText').textContent = bookingUrl;
-
-      const btnCobrado = document.getElementById('btnMarcarCobrado');
-      const labelClient = document.getElementById('cobroClientLabel');
-      const amountInput = document.getElementById('cobroAmountInput');
-
-      if (clientId) {
-        const c = clients.find(item => item.id === clientId);
-        if (c) {
-          labelClient.textContent = `Saldo pendiente de ${c.name}:`;
-          amountInput.value = c.debt || 0;
-          btnCobrado.classList.remove('hidden');
-        }
-      } else {
-        labelClient.textContent = 'Monto a Cobrar:';
-        amountInput.value = '';
-        btnCobrado.classList.add('hidden');
-      }
-
-      switchQrModalTab('cobro');
-      updateCobroQrLive();
-      generateTurneroQr(bookingUrl);
-
-      document.getElementById('businessQrModal').classList.remove('hidden');
-    }
-
-    function openCobroModalForClient(clientId) {
-      openBusinessQrModal(clientId);
-    }
-
-    function closeBusinessQrModal() {
-      document.getElementById('businessQrModal').classList.add('hidden');
-      currentCobroClientId = null;
-    }
-
-    function switchQrModalTab(tab) {
-      const btnCobro = document.getElementById('qrTabBtn-cobro');
-      const btnTurnero = document.getElementById('qrTabBtn-turnero');
-      const contentCobro = document.getElementById('qrContent-cobro');
-      const contentTurnero = document.getElementById('qrContent-turnero');
-
-      if (tab === 'cobro') {
-        btnCobro.className = 'pb-2 text-xs font-black border-b-2 border-purple-600 text-purple-700';
-        btnTurnero.className = 'pb-2 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-800';
-        contentCobro.classList.remove('hidden');
-        contentTurnero.classList.add('hidden');
-      } else {
-        btnTurnero.className = 'pb-2 text-xs font-black border-b-2 border-purple-600 text-purple-700';
-        btnCobro.className = 'pb-2 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-800';
-        contentTurnero.classList.remove('hidden');
-        contentCobro.classList.add('hidden');
-      }
-    }
-
-    function updateCobroQrLive() {
-      const alias = settings.paymentAlias || 'peluqueria.laura.mp';
-      const amount = parseFloat(document.getElementById('cobroAmountInput').value) || 0;
-      
-      // Enlace universal de transferencia o formato alias
-      // En Argentina, los bancos aceptan transferencias directas al alias. Codificamos el intent o link.
-      const qrData = amount > 0 
-        ? `https://mpago.la/transfer?alias=${encodeURIComponent(alias)}&amount=${amount}`
-        : `https://mpago.la/transfer?alias=${encodeURIComponent(alias)}`;
-
-      const container = document.getElementById('cobroQrCodeContainer');
-      container.innerHTML = '';
-
-      try {
-        if (typeof QRCode !== 'undefined') {
-          cobroQrInstance = new QRCode(container, {
-            text: qrData,
-            width: 190,
-            height: 190,
-            colorDark: '#1E1B4B',
-            colorLight: '#ffffff',
-            correctLevel: QRCode.CorrectLevel.M
-          });
-        } else {
-          container.innerHTML = `<img src="https://quickchart.io/qr?text=${encodeURIComponent(qrData)}&size=190" alt="QR Cobro" class="w-44 h-44 rounded-xl">`;
-        }
-      } catch (err) {
-        container.innerHTML = `<img src="https://quickchart.io/qr?text=${encodeURIComponent(qrData)}&size=190" alt="QR Cobro" class="w-44 h-44 rounded-xl">`;
-      }
-    }
-
-    function generateTurneroQr(url) {
-      const container = document.getElementById('turneroQrCodeContainer');
-      container.innerHTML = '';
-      try {
-        if (typeof QRCode !== 'undefined') {
-          turneroQrInstance = new QRCode(container, {
-            text: url,
-            width: 190,
-            height: 190,
-            colorDark: '#1E1B4B',
-            colorLight: '#ffffff',
-            correctLevel: QRCode.CorrectLevel.M
-          });
-        } else {
-          container.innerHTML = `<img src="https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=190" alt="QR Turnero" class="w-44 h-44 rounded-xl">`;
-        }
-      } catch (err) {
-        container.innerHTML = `<img src="https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=190" alt="QR Turnero" class="w-44 h-44 rounded-xl">`;
-      }
-    }
-
-    function copyCobroAlias() {
-      const alias = settings.paymentAlias || 'peluqueria.laura.mp';
-      navigator.clipboard.writeText(alias).then(() => {
-        showToast('¡Alias copiado para transferir!', '📋');
-      }).catch(() => {
-        alert(`Alias: ${alias}`);
-      });
-    }
-
-    function sendPaymentWhatsApp() {
-      const alias = settings.paymentAlias || 'peluqueria.laura.mp';
-      const holder = settings.paymentHolder || 'Laura Gómez';
-      const amount = parseFloat(document.getElementById('cobroAmountInput').value) || 0;
-      const salon = settings.salonName || 'Peluquería & Color';
-
-      let msg = `¡Hola! Te comparto los datos para abonar en *${salon}*:\n\n` +
-                `• *Alias:* \`${alias}\`\n` +
-                `• *Titular:* ${holder}\n`;
-
-      if (amount > 0) {
-        msg += `• *Monto:* $ ${amount.toLocaleString('es-AR')}\n\n`;
-      } else {
-        msg += `\n`;
-      }
-      msg += `Por favor envianos el comprobante por acá una vez realizada la transferencia. ¡Muchas gracias!`;
-
-      if (currentCobroClientId) {
-        const c = clients.find(item => item.id === currentCobroClientId);
-        if (c && c.phone) {
-          const cleanPhone = c.phone.replace(/[^0-9]/g, '');
-          const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
-          window.open(waUrl, '_blank');
-          return;
-        }
-      }
-
-      navigator.clipboard.writeText(msg).then(() => {
-        showToast('¡Datos de pago copiados para pegar en WhatsApp!', '💬');
-      }).catch(() => {
-        alert(msg);
-      });
-    }
-
-    function markCurrentClientAsPaid() {
-      if (!currentCobroClientId) return;
-      const c = clients.find(item => item.id === currentCobroClientId);
-      if (!c) return;
-
-      c.debt = 0;
-      persistData();
-      renderClients();
-      closeBusinessQrModal();
-      showToast(`¡Saldo de ${c.name} saldado en $0!`, '✓');
-    }
-
-    function copyTurneroLink() {
-      const url = document.getElementById('turneroUrlText').textContent;
-      navigator.clipboard.writeText(url).then(() => {
-        showToast('¡Link del turnero copiado!', '📅');
-      }).catch(() => {
-        alert(url);
-      });
-    }
-
-    function openTurneroInNewTab() {
-      const url = document.getElementById('turneroUrlText').textContent;
-      window.open(url, '_blank');
-    }
-
-  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -736,7 +543,7 @@
         </div>
 
         <!-- Datos de Cobro con QR / Transferencia -->
-        <div class="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4 space-y-2.5">
+        <div class="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4 space-y-3">
           <div class="flex items-center gap-2">
             <span class="text-base">💳</span>
             <div>
@@ -744,23 +551,23 @@
               <span class="text-[11px] text-emerald-700/90 font-medium">Para que el QR de cobro transfiera directo a tu cuenta</span>
             </div>
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+          <div class="space-y-2.5 pt-1">
             <div>
-              <label class="block text-[10px] font-bold text-gray-700 uppercase mb-1">Tu Alias o CVU de Mercado Pago / Banco</label>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Tu Alias o CVU de Mercado Pago / Banco</label>
               <input 
                 type="text" 
                 id="paymentAliasInput" 
                 placeholder="ej: peluqueria.laura.mp" 
-                class="w-full px-3 py-2 rounded-xl border border-emerald-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-xs font-bold text-gray-800 bg-white"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-emerald-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-xs font-bold text-gray-800 bg-white"
               >
             </div>
             <div>
-              <label class="block text-[10px] font-bold text-gray-700 uppercase mb-1">Nombre del Titular de la cuenta</label>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Nombre del Titular de la cuenta</label>
               <input 
                 type="text" 
                 id="paymentHolderInput" 
                 placeholder="ej: Laura Gómez" 
-                class="w-full px-3 py-2 rounded-xl border border-emerald-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-xs font-bold text-gray-800 bg-white"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-emerald-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-xs font-bold text-gray-800 bg-white"
               >
             </div>
           </div>
@@ -2193,6 +2000,257 @@
         if (manual && btn) btn.innerHTML = originalText;
       }
     }
+
+    // ==========================================
+    // TOAST NOTIFICATIONS
+    // ==========================================
+    function showToast(message, icon = '✓') {
+      let toast = document.getElementById('globalAppToast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'globalAppToast';
+        toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] px-4 py-2.5 bg-gray-900/95 text-white text-xs font-bold rounded-2xl shadow-2xl flex items-center gap-2 pointer-events-none transition-all duration-300 opacity-0 translate-y-4';
+        document.body.appendChild(toast);
+      }
+      toast.innerHTML = `<span class="text-base">${icon}</span><span>${message}</span>`;
+      toast.classList.remove('opacity-0', 'translate-y-4');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      clearTimeout(window.__toastTimeout);
+      window.__toastTimeout = setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-4');
+      }, 2500);
+    }
+
+    // ==========================================
+    // QR DE COBRO & TURNERO DEL NEGOCIO
+    // ==========================================
+    let currentCobroClientId = null;
+    let cobroQrInstance = null;
+    let turneroQrInstance = null;
+
+    function openBusinessQrModal(clientId = null) {
+      currentCobroClientId = clientId;
+      const alias = settings.paymentAlias || 'peluqueria.laura.mp';
+      const holder = settings.paymentHolder || 'Laura Gómez';
+
+      const aliasEl = document.getElementById('cobroDisplayAlias');
+      if (aliasEl) aliasEl.textContent = alias;
+      const holderEl = document.getElementById('cobroDisplayHolder');
+      if (holderEl) holderEl.textContent = holder;
+      const salonNameEl = document.getElementById('turneroQrSalonName');
+      if (salonNameEl) salonNameEl.textContent = settings.salonName || 'Color · Laura';
+
+      const bookingUrl = buildBookingUrl(null);
+      const urlTextEl = document.getElementById('turneroUrlText');
+      if (urlTextEl) urlTextEl.textContent = bookingUrl;
+
+      const btnCobrado = document.getElementById('btnMarcarCobrado');
+      const labelClient = document.getElementById('cobroClientLabel');
+      const amountInput = document.getElementById('cobroAmountInput');
+
+      if (clientId) {
+        const c = clients.find(item => item.id === clientId);
+        if (c) {
+          if (labelClient) labelClient.textContent = `Saldo pendiente de ${c.name}:`;
+          if (amountInput) amountInput.value = c.debt || 0;
+          if (btnCobrado) btnCobrado.classList.remove('hidden');
+        }
+      } else {
+        if (labelClient) labelClient.textContent = 'Monto a Cobrar:';
+        if (amountInput) amountInput.value = '';
+        if (btnCobrado) btnCobrado.classList.add('hidden');
+      }
+
+      const modal = document.getElementById('businessQrModal');
+      if (modal) modal.classList.remove('hidden');
+
+      switchQrModalTab('cobro');
+      updateCobroQrLive();
+      generateTurneroQr(bookingUrl);
+    }
+
+    function openCobroModalForClient(clientId) {
+      openBusinessQrModal(clientId);
+    }
+
+    function closeBusinessQrModal() {
+      const modal = document.getElementById('businessQrModal');
+      if (modal) modal.classList.add('hidden');
+      currentCobroClientId = null;
+    }
+
+    function switchQrModalTab(tab) {
+      const btnCobro = document.getElementById('qrTabBtn-cobro');
+      const btnTurnero = document.getElementById('qrTabBtn-turnero');
+      const contentCobro = document.getElementById('qrContent-cobro');
+      const contentTurnero = document.getElementById('qrContent-turnero');
+
+      if (tab === 'cobro') {
+        if (btnCobro) btnCobro.className = 'pb-2 text-xs font-black border-b-2 border-purple-600 text-purple-700';
+        if (btnTurnero) btnTurnero.className = 'pb-2 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-800';
+        if (contentCobro) contentCobro.classList.remove('hidden');
+        if (contentTurnero) contentTurnero.classList.add('hidden');
+      } else {
+        if (btnTurnero) btnTurnero.className = 'pb-2 text-xs font-black border-b-2 border-purple-600 text-purple-700';
+        if (btnCobro) btnCobro.className = 'pb-2 text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-800';
+        if (contentTurnero) contentTurnero.classList.remove('hidden');
+        if (contentCobro) contentCobro.classList.add('hidden');
+        generateTurneroQr(buildBookingUrl(null));
+      }
+    }
+
+    function updateCobroQrLive() {
+      const alias = settings.paymentAlias || 'peluqueria.laura.mp';
+      const amountVal = document.getElementById('cobroAmountInput') ? document.getElementById('cobroAmountInput').value : 0;
+      const amount = parseFloat(amountVal) || 0;
+      
+      const qrData = amount > 0 
+        ? `https://mpago.la/transfer?alias=${encodeURIComponent(alias)}&amount=${amount}`
+        : `https://mpago.la/transfer?alias=${encodeURIComponent(alias)}`;
+
+      const container = document.getElementById('cobroQrCodeContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      let success = false;
+      try {
+        if (typeof QRCode !== 'undefined') {
+          new QRCode(container, {
+            text: qrData,
+            width: 190,
+            height: 190,
+            colorDark: '#1E1B4B',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
+          });
+          success = true;
+        }
+      } catch (err) {
+        console.warn('QRCode JS error, falling back to QuickChart', err);
+      }
+
+      if (!success) {
+        container.innerHTML = `<img src="https://quickchart.io/qr?text=${encodeURIComponent(qrData)}&size=190" alt="QR Cobro" class="w-44 h-44 rounded-xl shadow-sm">`;
+      }
+    }
+
+    function generateTurneroQr(url) {
+      const container = document.getElementById('turneroQrCodeContainer');
+      if (!container) return;
+      container.innerHTML = '';
+      let success = false;
+      try {
+        if (typeof QRCode !== 'undefined') {
+          new QRCode(container, {
+            text: url,
+            width: 190,
+            height: 190,
+            colorDark: '#1E1B4B',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
+          });
+          success = true;
+        }
+      } catch (err) {
+        console.warn('QRCode JS error, falling back to QuickChart', err);
+      }
+      if (!success) {
+        container.innerHTML = `<img src="https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=190" alt="QR Turnero" class="w-44 h-44 rounded-xl shadow-sm">`;
+      }
+    }
+
+    function copyCobroAlias() {
+      const alias = settings.paymentAlias || 'peluqueria.laura.mp';
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(alias).then(() => {
+          showToast('¡Alias copiado para transferir!', '📋');
+        }).catch(() => {
+          alert(`Alias: ${alias}`);
+        });
+      } else {
+        alert(`Alias: ${alias}`);
+      }
+    }
+
+    function sendPaymentWhatsApp() {
+      const alias = settings.paymentAlias || 'peluqueria.laura.mp';
+      const holder = settings.paymentHolder || 'Laura Gómez';
+      const amountVal = document.getElementById('cobroAmountInput') ? document.getElementById('cobroAmountInput').value : 0;
+      const amount = parseFloat(amountVal) || 0;
+      const salon = settings.salonName || 'Peluquería & Color';
+
+      let msg = `¡Hola! Te comparto los datos para abonar en *${salon}*:
+
+` +
+                `• *Alias:* \`${alias}\`
+` +
+                `• *Titular:* ${holder}
+`;
+
+      if (amount > 0) {
+        msg += `• *Monto:* $ ${amount.toLocaleString('es-AR')}
+
+`;
+      } else {
+        msg += `
+`;
+      }
+      msg += `Por favor envianos el comprobante por acá una vez realizada la transferencia. ¡Muchas gracias!`;
+
+      if (currentCobroClientId) {
+        const c = clients.find(item => item.id === currentCobroClientId);
+        if (c && c.phone) {
+          const cleanPhone = c.phone.replace(/[^0-9]/g, '');
+          const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
+          window.open(waUrl, '_blank');
+          return;
+        }
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(msg).then(() => {
+          showToast('¡Datos de pago copiados para pegar en WhatsApp!', '💬');
+        }).catch(() => {
+          alert(msg);
+        });
+      } else {
+        alert(msg);
+      }
+    }
+
+    function markCurrentClientAsPaid() {
+      if (!currentCobroClientId) return;
+      const c = clients.find(item => item.id === currentCobroClientId);
+      if (!c) return;
+
+      c.debt = 0;
+      persistData();
+      renderClients();
+      closeBusinessQrModal();
+      showToast(`¡Saldo de ${c.name} saldado en $0!`, '✓');
+    }
+
+    function copyTurneroLink() {
+      const urlEl = document.getElementById('turneroUrlText');
+      const url = urlEl ? urlEl.textContent : buildBookingUrl(null);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+          showToast('¡Link del turnero copiado!', '📅');
+        }).catch(() => {
+          alert(url);
+        });
+      } else {
+        alert(url);
+      }
+    }
+
+    function openTurneroInNewTab() {
+      const urlEl = document.getElementById('turneroUrlText');
+      const url = urlEl ? urlEl.textContent : buildBookingUrl(null);
+      window.open(url, '_blank');
+    }
+
 
     // Init
     document.addEventListener('DOMContentLoaded', () => {
