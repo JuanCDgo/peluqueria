@@ -1305,19 +1305,15 @@
                 </div>
               </div>
 
-              <!-- Payment status badge -->
-              <div class="text-right flex-shrink-0">
-                ${hasDebt ? `
+              <!-- Payment status badge (solo si tiene deuda) -->
+              ${hasDebt ? `
+                <div class="text-right flex-shrink-0">
                   <button onclick="event.stopPropagation(); openCobroModalForClient('${c.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 active:scale-95 transition-all" title="Cobrar saldo con QR">
                     <span>${formatCurrency(c.debt)}</span>
-                    <span class="text-[10px]">📷</span>
+                    <span class="text-[10px]">💵</span>
                   </button>
-                ` : `
-                  <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80">
-                    al día ✓
-                  </span>
-                `}
-              </div>
+                </div>
+              ` : ''}
             </div>
 
             <!-- Notes preview if any -->
