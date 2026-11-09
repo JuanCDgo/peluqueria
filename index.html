@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="theme-color" content="#FAF7F2">
-  <title>Color · Laura | Micro App Clientas</title>
+  <title>Estudio Estilo & Color | Micro App Clientas</title>
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -104,7 +104,7 @@
             </div>
             <div>
               <div class="flex flex-wrap items-center gap-1.5 cursor-pointer" onclick="openProfileModal()">
-                <h1 class="text-xl font-bold tracking-tight text-gray-900" id="headerTitle">Color · Laura</h1>
+                <h1 class="text-xl font-bold tracking-tight text-gray-900" id="headerTitle">Estudio Estilo & Color</h1>
                 <span id="turneroHeaderBadge" class="text-[10px] text-gray-500 bg-gray-200/80 px-2 py-0.5 rounded-full font-bold transition-colors">Turnero OFF</span>
               </div>
               <p class="text-xs font-semibold text-[#8A4B6E] tracking-wide flex items-center gap-1.5" id="headerSubtitle">
@@ -235,7 +235,7 @@
           </div>
           <div>
             <span class="text-[10px] uppercase tracking-wider font-bold text-[#8A4B6E] bg-[#F5ECE5] px-2 py-0.5 rounded-full">Turnero Online</span>
-            <h1 class="text-xl font-bold text-gray-900 mt-0.5" id="bookingSalonTitle">Color · Laura</h1>
+            <h1 class="text-xl font-bold text-gray-900 mt-0.5" id="bookingSalonTitle">Estudio Estilo & Color</h1>
             <p class="text-xs text-gray-500">Elegí tu día y horario en segundos</p>
           </div>
         </div>
@@ -342,7 +342,7 @@
               <span class="text-3xl" id="loyaltyAvatar">💇‍♀️</span>
             </div>
           </div>
-          <h1 class="text-xl font-bold text-gray-900 tracking-tight" id="loyaltySalonTitle">Color · Laura</h1>
+          <h1 class="text-xl font-bold text-gray-900 tracking-tight" id="loyaltySalonTitle">Estudio Estilo & Color</h1>
           <p class="text-[11px] font-semibold uppercase tracking-widest text-[#75375A]">Tarjeta de Fidelización</p>
         </div>
 
@@ -663,7 +663,7 @@
           <input 
             type="text" 
             id="salonNameInput" 
-            placeholder="Color · Laura" 
+            placeholder="Estudio Estilo & Color" 
             class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-400 focus:outline-none text-sm font-medium"
           >
         </div>
@@ -693,7 +693,7 @@
               <input 
                 type="text" 
                 id="paymentAliasInput" 
-                placeholder="ej: peluqueria.laura.mp" 
+                placeholder="ej: estilo.color.mp" 
                 class="w-full px-3.5 py-2.5 rounded-xl border border-emerald-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-xs font-bold text-gray-800 bg-white"
               >
             </div>
@@ -702,7 +702,7 @@
               <input 
                 type="text" 
                 id="paymentHolderInput" 
-                placeholder="ej: Laura Gómez" 
+                placeholder="ej: Estudio Estilo & Color" 
                 class="w-full px-3.5 py-2.5 rounded-xl border border-emerald-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-xs font-bold text-gray-800 bg-white"
               >
             </div>
@@ -972,7 +972,7 @@
       {
         id: '1',
         name: 'Martina',
-        phone: '5491138291044',
+        phone: '5491100000001',
         service: 'Cobrizo',
         colorTag: 'amber',
         hasCut: true,
@@ -987,7 +987,7 @@
       {
         id: '2',
         name: 'Lucía',
-        phone: '5491159382019',
+        phone: '5491100000002',
         service: 'Rubio',
         colorTag: 'yellow',
         hasCut: false,
@@ -1002,7 +1002,7 @@
       {
         id: '3',
         name: 'Carla',
-        phone: '5491147289102',
+        phone: '5491100000003',
         service: 'Violeta',
         colorTag: 'purple',
         hasCut: true,
@@ -1017,7 +1017,7 @@
       {
         id: '4',
         name: 'Sofía',
-        phone: '5491168492011',
+        phone: '5491100000004',
         service: 'Fantasía',
         colorTag: 'pink',
         hasCut: true,
@@ -1036,9 +1036,9 @@
     const AUTO_DRIVE_FOLDER_ID = '15laEUz3z5CNcjmMfOZ8X2CClsg8_iHlx';
 
     const DEFAULT_SETTINGS = {
-      salonName: 'Color · Laura',
-      paymentAlias: 'peluqueria.laura.mp',
-      paymentHolder: 'Laura Gómez',
+      salonName: 'Estudio Estilo & Color',
+      paymentAlias: 'estilo.color.mp',
+      paymentHolder: 'Estudio Estilo & Color',
       salonLogo: '',
       template: '¡Hola {nombre}! Ya pasaron {semanas} semanas de tu {servicio}, ¿te reservo turno para el retoque?',
       driveWebhookUrl: AUTO_DRIVE_WEBHOOK,
@@ -1046,7 +1046,7 @@
       autoSyncDrive: true,
       lastBackupDate: null,
       bookingEnabled: false,
-      salonPhone: '5491122334455',
+      salonPhone: '5491100000000',
       workDays: [2, 3, 4, 5, 6], // Mar a Sáb
       bookingStartHour: 9,
       bookingEndHour: 19,
@@ -1087,7 +1087,7 @@
     // Booking view state
     let tempWorkDays = [...settings.workDays];
     let bookingState = {
-      salonName: 'Color · Laura',
+      salonName: 'Estudio Estilo & Color',
       salonPhone: '',
       workDays: [2, 3, 4, 5, 6],
       startHour: 9,
@@ -1764,7 +1764,7 @@
         return;
       }
 
-      settings.salonName = document.getElementById('salonNameInput').value.trim() || 'Color · Laura';
+      settings.salonName = document.getElementById('salonNameInput').value.trim() || 'Estudio Estilo & Color';
       settings.paymentAlias = (document.getElementById('paymentAliasInput').value || '').trim();
       settings.paymentHolder = (document.getElementById('paymentHolderInput').value || '').trim();
       settings.loyaltyEnabled = document.getElementById('loyaltyEnabledToggle').checked;
@@ -1810,7 +1810,7 @@
       const baseUrl = window.location.origin + window.location.pathname;
       const params = new URLSearchParams();
       params.set('reservar', '1');
-      params.set('s', settings.salonName || 'Color · Laura');
+      params.set('s', settings.salonName || 'Estudio Estilo & Color');
       params.set('w', (settings.salonPhone || '').replace(/[^0-9]/g, ''));
       params.set('d', (settings.workDays || [2,3,4,5,6]).join(','));
       params.set('h', `${settings.bookingStartHour || 9}-${settings.bookingEndHour || 19}-${settings.bookingSlotMinutes || 60}`);
@@ -1829,7 +1829,7 @@
 
     function copyPublicBookingLink() {
       // Save current inputs temporarily so the link reflects what's on screen
-      settings.salonName = document.getElementById('salonNameInput').value.trim() || 'Color · Laura';
+      settings.salonName = document.getElementById('salonNameInput').value.trim() || 'Estudio Estilo & Color';
       settings.salonPhone = document.getElementById('salonPhoneInput').value.trim().replace(/[^0-9]/g, '');
       settings.workDays = [...tempWorkDays].sort();
       settings.bookingStartHour = Number(document.getElementById('bookingStartHour').value) || 9;
@@ -1846,8 +1846,8 @@
     }
 
     function previewClientBooking() {
-      settings.salonName = document.getElementById('salonNameInput').value.trim() || 'Color · Laura';
-      settings.salonPhone = document.getElementById('salonPhoneInput').value.trim().replace(/[^0-9]/g, '') || '5491122334455';
+      settings.salonName = document.getElementById('salonNameInput').value.trim() || 'Estudio Estilo & Color';
+      settings.salonPhone = document.getElementById('salonPhoneInput').value.trim().replace(/[^0-9]/g, '') || '5491100000000';
       settings.workDays = [...tempWorkDays].sort();
       settings.bookingStartHour = Number(document.getElementById('bookingStartHour').value) || 9;
       settings.bookingEndHour = Number(document.getElementById('bookingEndHour').value) || 19;
@@ -1878,7 +1878,7 @@
     }
 
     function initClientBookingView(cfg) {
-      bookingState.salonName = cfg.salonName || 'Color · Laura';
+      bookingState.salonName = cfg.salonName || 'Estudio Estilo & Color';
       bookingState.salonPhone = cfg.salonPhone || '';
       bookingState.workDays = cfg.workDays && cfg.workDays.length ? cfg.workDays : [2, 3, 4, 5, 6];
       bookingState.startHour = cfg.startHour || 9;
@@ -2284,15 +2284,15 @@
 
     function openBusinessQrModal(clientId = null) {
       currentCobroClientId = clientId;
-      const alias = settings.paymentAlias || 'peluqueria.laura.mp';
-      const holder = settings.paymentHolder || 'Laura Gómez';
+      const alias = settings.paymentAlias || 'estilo.color.mp';
+      const holder = settings.paymentHolder || 'Estudio Estilo & Color';
 
       const aliasEl = document.getElementById('cobroDisplayAlias');
       if (aliasEl) aliasEl.textContent = alias;
       const holderEl = document.getElementById('cobroDisplayHolder');
       if (holderEl) holderEl.textContent = holder;
       const salonNameEl = document.getElementById('turneroQrSalonName');
-      if (salonNameEl) salonNameEl.textContent = settings.salonName || 'Color · Laura';
+      if (salonNameEl) salonNameEl.textContent = settings.salonName || 'Estudio Estilo & Color';
 
       const bookingUrl = buildBookingUrl(null);
       const urlTextEl = document.getElementById('turneroUrlText');
@@ -2354,7 +2354,7 @@
     }
 
     function updateCobroQrLive() {
-      const alias = settings.paymentAlias || 'peluqueria.laura.mp';
+      const alias = settings.paymentAlias || 'estilo.color.mp';
       const amountVal = document.getElementById('cobroAmountInput') ? document.getElementById('cobroAmountInput').value : 0;
       const amount = parseFloat(amountVal) || 0;
       
@@ -2414,7 +2414,7 @@
     }
 
     function copyCobroAlias() {
-      const alias = settings.paymentAlias || 'peluqueria.laura.mp';
+      const alias = settings.paymentAlias || 'estilo.color.mp';
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(alias).then(() => {
           showToast('¡Alias copiado para transferir!', '📋');
@@ -2427,8 +2427,8 @@
     }
 
     function sendPaymentWhatsApp() {
-      const alias = settings.paymentAlias || 'peluqueria.laura.mp';
-      const holder = settings.paymentHolder || 'Laura Gómez';
+      const alias = settings.paymentAlias || 'estilo.color.mp';
+      const holder = settings.paymentHolder || 'Estudio Estilo & Color';
       const amountVal = document.getElementById('cobroAmountInput') ? document.getElementById('cobroAmountInput').value : 0;
       const amount = parseFloat(amountVal) || 0;
       const salon = settings.salonName || 'Peluquería & Color';
@@ -2551,7 +2551,7 @@
       params.set('sellos', client.stamps || 0);
       params.set('total', settings.loyaltyTarget || 6);
       params.set('premio', settings.loyaltyReward || 'Baño de crema o nutrición gratis');
-      params.set('s', settings.salonName || 'Color · Laura');
+      params.set('s', settings.salonName || 'Estudio Estilo & Color');
       params.set('w', (settings.salonPhone || '').replace(/[^0-9]/g, ''));
       return `${baseUrl}?${params.toString()}`;
     }
@@ -2648,7 +2648,7 @@
       const target = settings.loyaltyTarget || 6;
       const stamps = client.stamps || 0;
       const reward = settings.loyaltyReward || 'Baño de crema o nutrición gratis';
-      const salon = settings.salonName || 'Color · Laura';
+      const salon = settings.salonName || 'Estudio Estilo & Color';
       const url = buildLoyaltyUrl(client);
 
       let msg = `¡Hola ${client.name}! Te comparto tu *Tarjeta Digital de Fidelidad* en *${salon}* 💇‍♀️:
@@ -2691,7 +2691,7 @@ ${url}
         stamps: client.stamps || 0,
         total: settings.loyaltyTarget || 6,
         reward: settings.loyaltyReward || 'Baño de crema o nutrición gratis',
-        salonName: settings.salonName || 'Color · Laura',
+        salonName: settings.salonName || 'Estudio Estilo & Color',
         salonPhone: settings.salonPhone || '',
         isPreview: true
       });
@@ -2716,7 +2716,7 @@ ${url}
         previewBanner.classList.add('hidden');
       }
 
-      document.getElementById('loyaltySalonTitle').textContent = cfg.salonName || 'Color · Laura';
+      document.getElementById('loyaltySalonTitle').textContent = cfg.salonName || 'Estudio Estilo & Color';
       document.getElementById('loyaltyClientName').textContent = cfg.clientName || 'Clienta VIP';
       document.getElementById('loyaltyRewardText').textContent = cfg.reward || 'Baño de crema o nutrición gratis';
 
@@ -2779,7 +2779,7 @@ ${url}
     }
 
     function claimLoyaltyRewardWhatsApp() {
-      const salon = currentLoyaltyState.salonName || 'Color · Laura';
+      const salon = currentLoyaltyState.salonName || 'Estudio Estilo & Color';
       const phone = formatArgentineWhatsApp(currentLoyaltyState.salonPhone);
       const client = currentLoyaltyState.clientName || 'Clienta';
       const reward = currentLoyaltyState.reward || 'Baño de crema o nutrición gratis';
@@ -2796,7 +2796,7 @@ ${url}
     function loyaltyBookNextTurn() {
       if (settings.bookingEnabled) {
         initClientBookingView({
-          salonName: currentLoyaltyState.salonName || settings.salonName || 'Color · Laura',
+          salonName: currentLoyaltyState.salonName || settings.salonName || 'Estudio Estilo & Color',
           salonPhone: currentLoyaltyState.salonPhone || settings.salonPhone || '',
           workDays: settings.workDays || [2,3,4,5,6],
           startHour: settings.bookingStartHour || 9,
@@ -2925,7 +2925,7 @@ ${url}
           stamps: parseInt(params.get('sellos')) || 0,
           total: parseInt(params.get('total')) || (settings.loyaltyTarget || 6),
           reward: params.get('premio') || (settings.loyaltyReward || 'Baño de crema o nutrición gratis'),
-          salonName: params.get('s') || settings.salonName || 'Color · Laura',
+          salonName: params.get('s') || settings.salonName || 'Estudio Estilo & Color',
           salonPhone: params.get('w') || settings.salonPhone || '',
           isPreview: false
         });
@@ -2937,7 +2937,7 @@ ${url}
 
         const hoursParam = (params.get('h') || '9-19-60').split('-');
         initClientBookingView({
-          salonName: params.get('s') || settings.salonName || 'Color · Laura',
+          salonName: params.get('s') || settings.salonName || 'Estudio Estilo & Color',
           salonPhone: params.get('w') || settings.salonPhone || '',
           workDays: parsedDays.length ? parsedDays : [2, 3, 4, 5, 6],
           startHour: Number(hoursParam[0]) || 9,
@@ -3017,7 +3017,7 @@ ${url}
           <div class="flex items-center justify-between">
             <div>
               <span class="text-[10px] uppercase font-bold text-gray-400 block">Alias de cobro</span>
-              <span class="text-sm font-black text-purple-900 select-all" id="cobroDisplayAlias">peluqueria.laura.mp</span>
+              <span class="text-sm font-black text-purple-900 select-all" id="cobroDisplayAlias">estilo.color.mp</span>
             </div>
             <button 
               onclick="copyCobroAlias()" 
@@ -3027,7 +3027,7 @@ ${url}
             </button>
           </div>
           <div class="text-[11px] text-gray-500 pt-1 border-t border-gray-200 flex items-center justify-between">
-            <span>Titular: <strong id="cobroDisplayHolder" class="text-gray-800">Laura Gómez</strong></span>
+            <span>Titular: <strong id="cobroDisplayHolder" class="text-gray-800">Estudio Estilo & Color</strong></span>
             <span class="text-[10px] text-gray-400">CVU / Transferencias</span>
           </div>
         </div>
@@ -3060,7 +3060,7 @@ ${url}
             <div id="turneroQrCodeContainer" class="w-[190px] h-[190px] flex items-center justify-center"></div>
           </div>
           <p class="text-xs text-gray-600 font-bold mt-2.5 text-center" id="turneroQrSalonName">
-            Color · Laura
+            Estudio Estilo & Color
           </p>
           <p class="text-[11px] text-gray-400 font-medium max-w-[260px] text-center">
             Mostrá este QR en tu espejo o mostrador para que tus clientas reserven su turno solas.
